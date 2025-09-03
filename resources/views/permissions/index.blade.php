@@ -3,14 +3,28 @@
 @section('title', 'Kelola Permissions')
 
 @section('content')
-<div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-    <div class="p-6 bg-white border-b border-gray-200">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">Kelola Permissions</h2>
-            <a href="{{ route('permissions.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Tambah Permission
-            </a>
+<div class="w-full mx-auto" x-data="{
+    ...tableFilter({
+        search: '{{ request('search') }}',
+        dateFrom: '{{ request('date_from') }}',
+        dateTo: '{{ request('date_to') }}'
+    })
+}">
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="p-6 bg-white border-b border-gray-200">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Kelola Permissions</h2>
+                <a href="{{ route('permissions.create') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Tambah Permission
+                </a>
+            </div>
         </div>
+
+        <!-- Table Filter Component -->
+        <x-table-filter 
+            :show-category-filter="false"
+            search-placeholder="Cari nama permission atau display name..."
+        />
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -63,6 +77,12 @@
                 </tbody>
             </table>
         </div>
+
+        @if($permissions->hasPages())
+        <div class="px-6 py-3 border-t border-gray-200">
+            {{ $permissions->links() }}
+        </div>
+        @endif
     </div>
 </div>
 @endsection

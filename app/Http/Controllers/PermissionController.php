@@ -8,9 +8,30 @@ use Illuminate\Support\Facades\Validator;
 
 class PermissionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $permissions = Permission::with('roles')->get();
+        $query = Permission::with('roles');
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('display_name', 'like', "%{$search}%");
+            });
+        }
+
+        // Date range filter
+        if ($request->filled('date_from')) {
+            $query->where('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('created_at', '<=', $request->date_to);
+        }
+
+        $permissions = $query->latest()->paginate(10)->withQueryString();
+        
         return view('permissions.index', compact('permissions'));
     }
 

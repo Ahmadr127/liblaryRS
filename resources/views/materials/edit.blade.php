@@ -3,27 +3,27 @@
 @section('title', 'Edit Materi')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
+<div class="max-w-6xl mx-auto">
     <div class="bg-white rounded-lg shadow-sm">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Edit Materi</h3>
         </div>
 
-        <form action="{{ route('materials.update', $material) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
+        <form action="{{ route('materials.update', $material) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6" @submit="handleFormSubmit">
             @csrf
             @method('PUT')
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Kategori -->
                 <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
-                    <select id="category" name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
+                    <select id="category_id" name="category_id" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="">Pilih Kategori</option>
-                        <option value="medis" {{ old('category', $material->category) == 'medis' ? 'selected' : '' }}>Medis</option>
-                        <option value="keperawatan" {{ old('category', $material->category) == 'keperawatan' ? 'selected' : '' }}>Keperawatan</option>
-                        <option value="umum" {{ old('category', $material->category) == 'umum' ? 'selected' : '' }}>Umum</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ (int) old('category_id', $material->category_id) === $category->id ? 'selected' : '' }}>{{ $category->display_name }}</option>
+                        @endforeach
                     </select>
-                    @error('category')
+                    @error('category_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -188,24 +188,67 @@ function fileUpload() {
         handleFileSelect(event) {
             const files = Array.from(event.target.files);
             this.addFiles(files);
+            this.updateFileInput();
         },
         
         handleDrop(event) {
             this.isDragging = false;
             const files = Array.from(event.dataTransfer.files);
             this.addFiles(files);
+            this.updateFileInput();
         },
         
         addFiles(files) {
+            console.log('Adding files:', files.length, 'files');
             files.forEach(file => {
+                console.log('Processing file:', file.name, 'Type:', file.type, 'Size:', file.size);
                 if (file.type === 'application/pdf' && file.size <= 10 * 1024 * 1024) {
-                    this.selectedFiles.push(file);
+                    // Check if file already exists
+                    const exists = this.selectedFiles.some(existingFile => 
+                        existingFile.name === file.name && existingFile.size === file.size
+                    );
+                    if (!exists) {
+                        this.selectedFiles.push(file);
+                        console.log('File added:', file.name);
+                    } else {
+                        console.log('File already exists:', file.name);
+                    }
+                } else {
+                    console.log('Invalid file:', file.name, 'Type:', file.type, 'Size:', file.size);
+                    alert(`File ${file.name} tidak valid. Hanya file PDF dengan ukuran maksimal 10MB yang diperbolehkan.`);
                 }
             });
+            console.log('Total selected files:', this.selectedFiles.length);
         },
         
         removeFile(index) {
             this.selectedFiles.splice(index, 1);
+            this.updateFileInput();
+        },
+        
+        updateFileInput() {
+            const fileInput = this.$refs.fileInput;
+            
+            try {
+                // Create a new FileList-like object using DataTransfer API
+                const dataTransfer = new DataTransfer();
+                
+                this.selectedFiles.forEach(file => {
+                    dataTransfer.items.add(file);
+                });
+                
+                // Update the file input
+                fileInput.files = dataTransfer.files;
+                
+                // Trigger change event to ensure form validation works
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                console.log('Files updated:', fileInput.files.length, 'files selected');
+            } catch (error) {
+                console.error('Error updating file input:', error);
+                // Fallback: just trigger the change event
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
         },
         
         formatFileSize(bytes) {
@@ -214,6 +257,18 @@ function fileUpload() {
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+        
+        handleFormSubmit(event) {
+            const fileInput = this.$refs.fileInput;
+            console.log('Form submitting with files:', fileInput.files.length);
+            console.log('Selected files array:', this.selectedFiles.length);
+            
+            // Ensure files are properly set
+            if (this.selectedFiles.length > 0 && fileInput.files.length === 0) {
+                console.warn('Files not properly set in input, attempting to fix...');
+                this.updateFileInput();
+            }
         }
     }
 }

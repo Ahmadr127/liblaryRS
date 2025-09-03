@@ -7,6 +7,7 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,17 @@ Route::middleware('auth')->group(function () {
         Route::delete('materials/files/{materialFile}', [MaterialController::class, 'deleteFile'])->name('materials.deleteFile');
     });
 
+    // Material preview route - accessible to any authenticated user
+    Route::get('materials/files/{materialFile}/preview', [MaterialController::class, 'preview'])->name('materials.preview');
+
+    // Material modal route - accessible to any authenticated user (view details only)
+    Route::get('materials/{material}/modal', [MaterialController::class, 'modal'])->name('materials.modal');
+
+    // Material view route for regular users
+    Route::middleware('permission:view_materials')->group(function () {
+        Route::get('materials/user/list', [MaterialController::class, 'materialsForUser'])->name('materials.materialsforuser');
+    });
+
     // User Management routes
     Route::middleware('permission:manage_users')->group(function () {
         Route::resource('users', UserController::class);
@@ -56,5 +68,13 @@ Route::middleware('auth')->group(function () {
     // Permission Management routes
     Route::middleware('permission:manage_permissions')->group(function () {
         Route::resource('permissions', PermissionController::class);
+    });
+
+    // Categories: view list for viewers, manage for managers
+    Route::middleware('permission:view_categories')->group(function () {
+        Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
+    });
+    Route::middleware('permission:manage_categories')->group(function () {
+        Route::resource('categories', CategoryController::class)->except(['index', 'show']);
     });
 });

@@ -90,7 +90,7 @@
             <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-900">Materi Terbaru</h3>
-                    <a href="{{ route('materials.index') }}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                    <a href="{{ route('materials.index') }}" class="text-green-600 hover:text-green-900 text-sm font-medium">
                         Lihat semua →
                     </a>
                 </div>
@@ -109,7 +109,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 ml-3">
-                                <a href="{{ route('materials.show', $material) }}" class="p-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-md transition-colors">
+                                <a href="{{ route('materials.show', $material) }}" class="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-md transition-colors">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 @if($user->hasPermission('manage_materials'))
@@ -128,7 +128,7 @@
                         </div>
                         <p class="text-gray-500 mb-4">Belum ada materi yang ditambahkan.</p>
                         @if($user->hasPermission('manage_materials'))
-                        <a href="{{ route('materials.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+                        <a href="{{ route('materials.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
                             <i class="fas fa-plus mr-2"></i>
                             Tambah Materi Pertama
                         </a>
@@ -144,13 +144,13 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
                 <div class="space-y-3">
                     @if($user->hasPermission('manage_materials'))
-                    <a href="{{ route('materials.create') }}" class="flex items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors group">
-                        <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center mr-4 group-hover:bg-indigo-700 transition-colors">
+                    <a href="{{ route('materials.create') }}" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors group">
+                        <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-4 group-hover:bg-green-700 transition-colors">
                             <i class="fas fa-plus text-white"></i>
                         </div>
                         <div>
-                            <div class="text-indigo-900 font-medium">Tambah Materi Baru</div>
-                            <div class="text-sm text-indigo-600">Upload materi baru ke sistem</div>
+                            <div class="text-green-900 font-medium">Tambah Materi Baru</div>
+                            <div class="text-sm text-green-600">Upload materi baru ke sistem</div>
                         </div>
                     </a>
                     @endif

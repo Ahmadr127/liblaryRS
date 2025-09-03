@@ -17,12 +17,19 @@ class DashboardController extends Controller
         $totalMaterials = Material::count();
         $totalFiles = MaterialFile::count();
         
-        $medisCount = Material::where('category', 'medis')->count();
-        $keperawatanCount = Material::where('category', 'keperawatan')->count();
-        $umumCount = Material::where('category', 'umum')->count();
+        // Hitung berdasarkan relasi kategori (name: medis/keperawatan/umum)
+        $medisCount = Material::whereHas('category', function($q){
+            $q->where('name', 'medis');
+        })->count();
+        $keperawatanCount = Material::whereHas('category', function($q){
+            $q->where('name', 'keperawatan');
+        })->count();
+        $umumCount = Material::whereHas('category', function($q){
+            $q->where('name', 'umum');
+        })->count();
         
         // Get recent materials with file count
-        $recentMaterials = Material::with(['uploader', 'files'])
+        $recentMaterials = Material::with(['uploader', 'files', 'category'])
             ->latest()
             ->take(5)
             ->get();

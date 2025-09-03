@@ -10,9 +10,31 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('role')->get();
+        $query = User::with('role');
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Date range filter
+        if ($request->filled('date_from')) {
+            $query->where('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('created_at', '<=', $request->date_to);
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
+        
         return view('users.index', compact('users'));
     }
 

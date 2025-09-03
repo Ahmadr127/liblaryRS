@@ -12,7 +12,7 @@ class Material extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category',
+        'category_id',
         'title',
         'organizer',
         'source',
@@ -29,6 +29,11 @@ class Material extends Model
         return $this->belongsTo(User::class, 'uploaded_by');
     }
 
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
     public function files(): HasMany
     {
         return $this->hasMany(MaterialFile::class);
@@ -36,12 +41,7 @@ class Material extends Model
 
     public function getCategoryLabelAttribute(): string
     {
-        return match($this->category) {
-            'medis' => 'Medis',
-            'keperawatan' => 'Keperawatan',
-            'umum' => 'Umum',
-            default => 'Unknown'
-        };
+        return $this->category?->display_name ?? 'Unknown';
     }
 
     public function getMainFileAttribute()

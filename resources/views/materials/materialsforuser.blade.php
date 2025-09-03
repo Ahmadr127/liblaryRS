@@ -44,10 +44,6 @@
         <div class="p-6 bg-white border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-bold text-gray-900">Daftar Materi</h2>
-                <a href="{{ route('materials.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                    <i class="fas fa-plus mr-2"></i>
-                    Tambah Materi
-                </a>
             </div>
         </div>
 
@@ -79,8 +75,7 @@
                             <div class="text-sm text-gray-500">{{ $material->source }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                                bg-gray-100 text-gray-800">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
                                 {{ $material->category_label }}
                             </span>
                         </td>
@@ -119,16 +114,6 @@
                                 <button @click="openModal({{ $material->id }})" class="text-indigo-600 hover:text-indigo-900" title="Lihat Detail">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <a href="{{ route('materials.edit', $material) }}" class="text-yellow-600 hover:text-yellow-900" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ route('materials.destroy', $material) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus materi ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>

@@ -17,9 +17,9 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'view_dashboard', 'display_name' => 'Lihat Dashboard', 'description' => 'Melihat halaman dashboard'],
             ['name' => 'manage_users', 'display_name' => 'Kelola Users', 'description' => 'Mengelola pengguna'],
             ['name' => 'manage_materials', 'display_name' => 'Kelola Materi', 'description' => 'Mengelola materi perpustakaan'],
-            ['name' => 'manage_books', 'display_name' => 'Kelola Buku', 'description' => 'Mengelola data buku'],
-            ['name' => 'manage_borrowings', 'display_name' => 'Kelola Peminjaman', 'description' => 'Mengelola peminjaman buku'],
-            ['name' => 'view_reports', 'display_name' => 'Lihat Laporan', 'description' => 'Melihat laporan sistem'],
+            ['name' => 'view_materials', 'display_name' => 'Lihat Materi', 'description' => 'Melihat daftar materi perpustakaan'],
+            ['name' => 'manage_categories', 'display_name' => 'Kelola Kategori', 'description' => 'Mengelola master kategori materi'],
+            ['name' => 'view_categories', 'display_name' => 'Lihat Kategori', 'description' => 'Melihat master kategori materi'],
         ];
 
         foreach ($permissions as $permission) {
@@ -52,15 +52,17 @@ class RolePermissionSeeder extends Seeder
             Permission::whereIn('name', [
                 'view_dashboard',
                 'manage_materials',
-                'manage_books',
-                'manage_borrowings',
-                'view_reports'
+                'view_materials',
+                'manage_categories',
+                'view_categories'
             ])->get()
         );
         
         $userRole->permissions()->attach(
             Permission::whereIn('name', [
-                'view_dashboard'
+                'view_dashboard',
+                'view_materials',
+                'view_categories'
             ])->get()
         );
     }
