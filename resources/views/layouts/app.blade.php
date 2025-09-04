@@ -113,26 +113,30 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col lg:ml-0">
             <!-- Top Navigation Bar -->
-            <header class="bg-white shadow-sm border-b border-gray-200">
+            <header x-data="{ scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 8 })" class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200 transition-shadow duration-300" :class="{ 'shadow-md': scrolled }">
                 <div class="flex items-center justify-between h-16 px-6">
                     <div class="flex items-center">
                         <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden mr-4 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <div>
-                            <h2 class="text-xl font-semibold text-gray-800">@yield('title', 'Dashboard')</h2>
-                            <p class="text-sm text-gray-500">Library Management System</p>
+                        <div class="flex items-center space-x-3">
+                            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-8 w-8 rounded bg-white object-contain">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-800">@yield('title', 'Dashboard')</h2>
+                                <p class="text-sm text-gray-500">Library Management System</p>
+                            </div>
                         </div>
                     </div>
                     
                     <div class="flex items-center space-x-4">
-                        <div class="text-sm text-gray-600">
-                            {{ now()->format('d M Y, H:i') }}
+                        <div class="text-sm text-gray-700 bg-gray-100 border border-gray-200 px-3 py-1 rounded-full">
+                            <i class="far fa-clock mr-1"></i>{{ now()->format('d M Y, H:i') }}
                         </div>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
-                            <button type="submit" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
+                            <button type="submit" class="px-3 py-2 text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors flex items-center space-x-2" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
                                 <i class="fas fa-sign-out-alt"></i>
+                                <span class="hidden sm:inline">Keluar</span>
                             </button>
                         </form>
                     </div>

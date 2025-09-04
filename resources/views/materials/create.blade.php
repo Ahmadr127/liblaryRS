@@ -9,7 +9,7 @@
             <h3 class="text-lg font-medium text-gray-900">Tambah Materi Baru</h3>
         </div>
 
-        <form action="{{ route('materials.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6" @submit="handleFormSubmit">
+        <form action="{{ route('materials.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6" x-data="{ dateType: 'single' }" @submit="handleFormSubmit">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -29,11 +29,47 @@
 
                 <!-- Tanggal Kegiatan -->
                 <div>
-                    <label for="activity_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kegiatan *</label>
-                    <input type="date" id="activity_date" name="activity_date" value="{{ old('activity_date') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                    @error('activity_date')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kegiatan *</label>
+                    
+                    <!-- Toggle untuk pilih jenis tanggal -->
+                    <div class="mb-3">
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="date_type" value="single" x-model="dateType" class="mr-2">
+                                <span class="text-sm text-gray-700">Tanggal Tunggal</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="date_type" value="range" x-model="dateType" class="mr-2">
+                                <span class="text-sm text-gray-700">Rentang Tanggal</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Input Tanggal Tunggal -->
+                    <div x-show="dateType === 'single'" class="mb-3">
+                        <input type="date" id="activity_date" name="activity_date" value="{{ old('activity_date') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        @error('activity_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Input Rentang Tanggal -->
+                    <div x-show="dateType === 'range'" class="space-y-3">
+                        <div>
+                            <label for="activity_date_start" class="block text-sm font-medium text-gray-600 mb-1">Tanggal Mulai</label>
+                            <input type="date" id="activity_date_start" name="activity_date_start" value="{{ old('activity_date_start') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            @error('activity_date_start')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="activity_date_end" class="block text-sm font-medium text-gray-600 mb-1">Tanggal Selesai</label>
+                            <input type="date" id="activity_date_end" name="activity_date_end" value="{{ old('activity_date_end') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            @error('activity_date_end')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
             </div>
 

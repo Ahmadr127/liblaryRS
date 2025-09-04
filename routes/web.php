@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\LandingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +21,15 @@ use App\Http\Controllers\CategoryController;
 |
 */
 
-Route::get('/', function () {
-    return redirect('/login');
-});
+// Landing page as root
+Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::get('/about', [LandingController::class, 'about'])->name('about');
+
+// Public materials routes
+Route::get('/materials', [LandingController::class, 'materials'])->name('public.materials');
+Route::get('/materials/detail/{material}', [LandingController::class, 'materialDetail'])->name('public.material.detail');
+Route::get('/materials/files/{materialFile}/download', [MaterialController::class, 'downloadPublic'])->name('materials.files.download');
+Route::get('/materials/files/{materialFile}/preview', [MaterialController::class, 'previewPublic'])->name('materials.files.preview');
 
 // Authentication routes
 Route::middleware('guest')->group(function () {
@@ -39,13 +46,19 @@ Route::middleware('auth')->group(function () {
     
     // Material routes with permission middleware
     Route::middleware('permission:manage_materials')->group(function () {
-        Route::resource('materials', MaterialController::class);
+        Route::get('admin/materials', [MaterialController::class, 'index'])->name('materials.index');
+        Route::get('admin/materials/create', [MaterialController::class, 'create'])->name('materials.create');
+        Route::post('admin/materials', [MaterialController::class, 'store'])->name('materials.store');
+        Route::get('admin/materials/{material}', [MaterialController::class, 'show'])->name('materials.show');
+        Route::get('admin/materials/{material}/edit', [MaterialController::class, 'edit'])->name('materials.edit');
+        Route::put('admin/materials/{material}', [MaterialController::class, 'update'])->name('materials.update');
+        Route::delete('admin/materials/{material}', [MaterialController::class, 'destroy'])->name('materials.destroy');
         Route::get('materials/{materialFile}/download', [MaterialController::class, 'download'])->name('materials.download');
         Route::delete('materials/files/{materialFile}', [MaterialController::class, 'deleteFile'])->name('materials.deleteFile');
     });
 
     // Material preview route - accessible to any authenticated user
-    Route::get('materials/files/{materialFile}/preview', [MaterialController::class, 'preview'])->name('materials.preview');
+    Route::get('materials/files/{materialFile}/preview-auth', [MaterialController::class, 'preview'])->name('materials.preview');
 
     // Material modal route - accessible to any authenticated user (view details only)
     Route::get('materials/{material}/modal', [MaterialController::class, 'modal'])->name('materials.modal');
@@ -76,5 +89,37 @@ Route::middleware('auth')->group(function () {
     });
     Route::middleware('permission:manage_categories')->group(function () {
         Route::resource('categories', CategoryController::class)->except(['index', 'show']);
+    });
+
+    // Storage sync route untuk InfinityFree (opsional)
+    Route::middleware('permission:manage_materials')->group(function () {
+        Route::get('storage/sync', function () {
+            $sourceDir = storage_path('app/public');
+            $targetDir = public_path('storage');
+            
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+            
+            // Simple copy function
+            function copyDirectory($src, $dst) {
+                $dir = opendir($src);
+                @mkdir($dst);
+                while (($file = readdir($dir)) !== false) {
+                    if ($file != '.' && $file != '..') {
+                        if (is_dir($src . '/' . $file)) {
+                            copyDirectory($src . '/' . $file, $dst . '/' . $file);
+                        } else {
+                            copy($src . '/' . $file, $dst . '/' . $file);
+                        }
+                    }
+                }
+                closedir($dir);
+            }
+            
+            copyDirectory($sourceDir, $targetDir);
+            
+            return redirect()->back()->with('success', 'Storage berhasil di-sync!');
+        })->name('storage.sync');
     });
 });

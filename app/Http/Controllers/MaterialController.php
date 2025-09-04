@@ -12,33 +12,22 @@ class MaterialController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Material::with(['uploader', 'files', 'category']);
-
-        // Search filter
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('organizer', 'like', "%{$search}%")
-                  ->orWhere('source', 'like', "%{$search}%");
-            });
+        // Validasi rentang tanggal
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            if ($request->date_from > $request->date_to) {
+                return redirect()->back()->withErrors([
+                    'date_range' => 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir.'
+                ]);
+            }
         }
 
-        // Category filter
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
-
-        // Date range filter
-        if ($request->filled('date_from')) {
-            $query->where('activity_date', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('activity_date', '<=', $request->date_to);
-        }
-
-        $materials = $query->latest()->paginate(10)->withQueryString();
+        $materials = Material::with(['uploader', 'files', 'category'])
+            ->search($request->search)
+            ->byCategory($request->category_id)
+            ->dateRange($request->date_from, $request->date_to)
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
         
         $categories = \App\Models\Category::orderBy('display_name')->get();
         return view('materials.index', compact('materials', 'categories'));
@@ -57,10 +46,24 @@ class MaterialController extends Controller
             'title' => 'required|string|max:255',
             'organizer' => 'required|string|max:255',
             'source' => 'required|string|max:255',
-            'activity_date' => 'required|date',
+            'activity_date' => 'nullable|date',
+            'activity_date_start' => 'nullable|date',
+            'activity_date_end' => 'nullable|date|after_or_equal:activity_date_start',
             'file' => 'required|array|min:1',
             'file.*' => 'required|file|mimes:pdf|max:10240', // Max 10MB per file
         ]);
+
+        // Validasi: minimal harus ada activity_date atau activity_date_start
+        if (!$request->activity_date && !$request->activity_date_start) {
+            return redirect()->back()->withErrors([
+                'activity_date' => 'Tanggal kegiatan harus diisi (tanggal tunggal atau rentang tanggal).'
+            ])->withInput();
+        }
+
+        // Jika menggunakan rentang tanggal, set activity_date_start sebagai activity_date untuk kompatibilitas
+        if ($request->activity_date_start && !$request->activity_date) {
+            $request->merge(['activity_date' => $request->activity_date_start]);
+        }
 
         // Create the material first
         $material = Material::create([
@@ -69,6 +72,8 @@ class MaterialController extends Controller
             'organizer' => $request->organizer,
             'source' => $request->source,
             'activity_date' => $request->activity_date,
+            'activity_date_start' => $request->activity_date_start,
+            'activity_date_end' => $request->activity_date_end,
             'uploaded_by' => Auth::id(),
         ]);
 
@@ -79,6 +84,9 @@ class MaterialController extends Controller
         foreach ($files as $file) {
             $fileName = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('materials', $fileName, 'public');
+
+            // Auto-copy untuk InfinityFree (jika symbolic link tidak berfungsi)
+            $this->copyToPublicStorage($filePath);
 
             $materialFile = MaterialFile::create([
                 'material_id' => $material->id,
@@ -118,10 +126,24 @@ class MaterialController extends Controller
             'title' => 'required|string|max:255',
             'organizer' => 'required|string|max:255',
             'source' => 'required|string|max:255',
-            'activity_date' => 'required|date',
+            'activity_date' => 'nullable|date',
+            'activity_date_start' => 'nullable|date',
+            'activity_date_end' => 'nullable|date|after_or_equal:activity_date_start',
             'file' => 'nullable|array',
             'file.*' => 'nullable|file|mimes:pdf|max:10240',
         ]);
+
+        // Validasi: minimal harus ada activity_date atau activity_date_start
+        if (!$request->activity_date && !$request->activity_date_start) {
+            return redirect()->back()->withErrors([
+                'activity_date' => 'Tanggal kegiatan harus diisi (tanggal tunggal atau rentang tanggal).'
+            ])->withInput();
+        }
+
+        // Jika menggunakan rentang tanggal, set activity_date_start sebagai activity_date untuk kompatibilitas
+        if ($request->activity_date_start && !$request->activity_date) {
+            $request->merge(['activity_date' => $request->activity_date_start]);
+        }
 
         // Update material data
         $material->update([
@@ -130,6 +152,8 @@ class MaterialController extends Controller
             'organizer' => $request->organizer,
             'source' => $request->source,
             'activity_date' => $request->activity_date,
+            'activity_date_start' => $request->activity_date_start,
+            'activity_date_end' => $request->activity_date_end,
         ]);
 
         // Handle new file uploads
@@ -140,6 +164,9 @@ class MaterialController extends Controller
                 if ($file) {
                     $fileName = time() . '_' . $file->getClientOriginalName();
                     $filePath = $file->storeAs('materials', $fileName, 'public');
+
+                    // Auto-copy untuk InfinityFree (jika symbolic link tidak berfungsi)
+                    $this->copyToPublicStorage($filePath);
 
                     MaterialFile::create([
                         'material_id' => $material->id,
@@ -169,6 +196,20 @@ class MaterialController extends Controller
         return redirect()->route('materials.index')->with('success', 'Materi berhasil dihapus!');
     }
 
+    public function downloadPublic(MaterialFile $materialFile)
+    {
+        $filePath = storage_path('app/public/' . $materialFile->file_path);
+        
+        if (!file_exists($filePath)) {
+            abort(404, 'File tidak ditemukan');
+        }
+
+        // Increment download count (optional)
+        // $materialFile->increment('downloads');
+
+        return response()->download($filePath, $materialFile->original_name);
+    }
+
     public function download(MaterialFile $materialFile)
     {
         if (!Storage::disk('public')->exists($materialFile->file_path)) {
@@ -179,6 +220,24 @@ class MaterialController extends Controller
     }
 
     public function preview(MaterialFile $materialFile)
+    {
+        if (!Storage::disk('public')->exists($materialFile->file_path)) {
+            abort(404);
+        }
+
+        // Get file content
+        $fileContent = Storage::disk('public')->get($materialFile->file_path);
+        
+        // Get file mime type
+        $mimeType = Storage::disk('public')->mimeType($materialFile->file_path);
+        
+        // Return file with appropriate headers for preview
+        return response($fileContent)
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="' . $materialFile->original_name . '"');
+    }
+
+    public function previewPublic(MaterialFile $materialFile)
     {
         if (!Storage::disk('public')->exists($materialFile->file_path)) {
             abort(404);
@@ -225,8 +284,9 @@ class MaterialController extends Controller
             'category_label' => $material->category_label,
             'organizer' => $material->organizer,
             'source' => $material->source,
-            'activity_date' => $material->activity_date->format('Y-m-d'),
-            'activity_date_formatted' => $material->activity_date->format('d F Y'),
+            'activity_date' => $material->activity_date ? $material->activity_date->format('Y-m-d') : null,
+            'activity_date_formatted' => $material->activity_date ? $material->activity_date->format('d F Y') : null,
+            'activity_date_range' => $material->activity_date_range,
             'uploader' => [
                 'name' => $material->uploader->name,
             ],
@@ -246,35 +306,44 @@ class MaterialController extends Controller
 
     public function materialsForUser(Request $request)
     {
-        $query = Material::with(['uploader', 'files', 'category']);
-
-        // Search filter
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('organizer', 'like', "%{$search}%")
-                  ->orWhere('source', 'like', "%{$search}%");
-            });
+        // Validasi rentang tanggal
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            if ($request->date_from > $request->date_to) {
+                return redirect()->back()->withErrors([
+                    'date_range' => 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir.'
+                ]);
+            }
         }
 
-        // Category filter
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
-
-        // Date range filter
-        if ($request->filled('date_from')) {
-            $query->where('activity_date', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('activity_date', '<=', $request->date_to);
-        }
-
-        $materials = $query->latest()->paginate(10)->withQueryString();
+        $materials = Material::with(['uploader', 'files', 'category'])
+            ->search($request->search)
+            ->byCategory($request->category_id)
+            ->dateRange($request->date_from, $request->date_to)
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
         
         $categories = \App\Models\Category::orderBy('display_name')->get();
         return view('materials.materialsforuser', compact('materials', 'categories'));
+    }
+
+    /**
+     * Copy file dari storage/app/public ke public/storage untuk InfinityFree
+     */
+    private function copyToPublicStorage($filePath)
+    {
+        $sourcePath = storage_path('app/public/' . $filePath);
+        $targetPath = public_path('storage/' . $filePath);
+        
+        // Buat direktori target jika belum ada
+        $targetDir = dirname($targetPath);
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+        
+        // Copy file jika source ada dan target belum ada
+        if (file_exists($sourcePath) && !file_exists($targetPath)) {
+            copy($sourcePath, $targetPath);
+        }
     }
 }

@@ -76,6 +76,26 @@
                 class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
         </div>
+
+        <!-- Date Presets -->
+        <div class="lg:w-48">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Preset Tanggal</label>
+            <select 
+                x-model="datePreset"
+                @change="applyDatePreset()"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+                <option value="">Pilih Preset</option>
+                <option value="today">Hari Ini</option>
+                <option value="yesterday">Kemarin</option>
+                <option value="this_week">Minggu Ini</option>
+                <option value="last_week">Minggu Lalu</option>
+                <option value="this_month">Bulan Ini</option>
+                <option value="last_month">Bulan Lalu</option>
+                <option value="this_year">Tahun Ini</option>
+                <option value="last_year">Tahun Lalu</option>
+            </select>
+        </div>
         @endif
 
         <!-- Action Buttons -->
@@ -129,6 +149,7 @@ document.addEventListener('alpine:init', () => {
             dateTo: initialFilters.dateTo || '',
             ...initialFilters
         },
+        datePreset: '',
 
         init() {
             // Initialize filters from URL params
@@ -214,6 +235,69 @@ document.addEventListener('alpine:init', () => {
                 month: 'short',
                 year: 'numeric'
             });
+        },
+
+        applyDatePreset() {
+            if (!this.datePreset) return;
+            
+            const today = new Date();
+            let dateFrom = '';
+            let dateTo = '';
+            
+            switch (this.datePreset) {
+                case 'today':
+                    dateFrom = dateTo = this.formatDateForInput(today);
+                    break;
+                case 'yesterday':
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    dateFrom = dateTo = this.formatDateForInput(yesterday);
+                    break;
+                case 'this_week':
+                    const startOfWeek = new Date(today);
+                    startOfWeek.setDate(today.getDate() - today.getDay());
+                    dateFrom = this.formatDateForInput(startOfWeek);
+                    dateTo = this.formatDateForInput(today);
+                    break;
+                case 'last_week':
+                    const lastWeekStart = new Date(today);
+                    lastWeekStart.setDate(today.getDate() - today.getDay() - 7);
+                    const lastWeekEnd = new Date(today);
+                    lastWeekEnd.setDate(today.getDate() - today.getDay() - 1);
+                    dateFrom = this.formatDateForInput(lastWeekStart);
+                    dateTo = this.formatDateForInput(lastWeekEnd);
+                    break;
+                case 'this_month':
+                    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                    dateFrom = this.formatDateForInput(startOfMonth);
+                    dateTo = this.formatDateForInput(today);
+                    break;
+                case 'last_month':
+                    const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                    dateFrom = this.formatDateForInput(lastMonthStart);
+                    dateTo = this.formatDateForInput(lastMonthEnd);
+                    break;
+                case 'this_year':
+                    const startOfYear = new Date(today.getFullYear(), 0, 1);
+                    dateFrom = this.formatDateForInput(startOfYear);
+                    dateTo = this.formatDateForInput(today);
+                    break;
+                case 'last_year':
+                    const lastYearStart = new Date(today.getFullYear() - 1, 0, 1);
+                    const lastYearEnd = new Date(today.getFullYear() - 1, 11, 31);
+                    dateFrom = this.formatDateForInput(lastYearStart);
+                    dateTo = this.formatDateForInput(lastYearEnd);
+                    break;
+            }
+            
+            this.filters.dateFrom = dateFrom;
+            this.filters.dateTo = dateTo;
+            this.applyFilters();
+        },
+
+        formatDateForInput(date) {
+            return date.toISOString().split('T')[0];
         }
     }));
 });

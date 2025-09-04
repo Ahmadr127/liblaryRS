@@ -55,7 +55,7 @@
                     <!-- Tanggal Kegiatan -->
                     <div class="flex items-center space-x-4">
                         <span class="text-sm font-medium text-gray-500 w-24">Tanggal:</span>
-                        <span x-text="material?.activity_date_formatted || ''" class="text-gray-900"></span>
+                        <span x-text="material?.activity_date_range || material?.activity_date_formatted || ''" class="text-gray-900"></span>
                     </div>
 
                     <!-- Uploader -->

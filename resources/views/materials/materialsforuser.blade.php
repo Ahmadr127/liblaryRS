@@ -47,6 +47,29 @@
             </div>
         </div>
 
+        <!-- Error Messages -->
+        @if($errors->any())
+        <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">
+                        Terjadi kesalahan
+                    </h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Table Filter Component -->
         <x-table-filter 
             :show-category-filter="true"
@@ -83,7 +106,7 @@
                             {{ $material->organizer }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $material->activity_date->format('d M Y') }}
+                            {{ $material->display_activity_date }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $material->created_at->format('d M Y') }}
