@@ -20,6 +20,8 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'view_materials', 'display_name' => 'Lihat Materi', 'description' => 'Melihat daftar materi perpustakaan'],
             ['name' => 'manage_categories', 'display_name' => 'Kelola Kategori', 'description' => 'Mengelola master kategori materi'],
             ['name' => 'view_categories', 'display_name' => 'Lihat Kategori', 'description' => 'Melihat master kategori materi'],
+            ['name' => 'manage_news', 'display_name' => 'Kelola Berita', 'description' => 'Mengelola berita dan artikel'],
+            ['name' => 'view_news', 'display_name' => 'Lihat Berita', 'description' => 'Melihat daftar berita dan artikel'],
         ];
 
         foreach ($permissions as $permission) {
@@ -54,7 +56,9 @@ class RolePermissionSeeder extends Seeder
                 'manage_materials',
                 'view_materials',
                 'manage_categories',
-                'view_categories'
+                'view_categories',
+                'manage_news',
+                'view_news'
             ])->get()
         );
         
@@ -62,7 +66,8 @@ class RolePermissionSeeder extends Seeder
             Permission::whereIn('name', [
                 'view_dashboard',
                 'view_materials',
-                'view_categories'
+                'view_categories',
+                'view_news'
             ])->get()
         );
     }

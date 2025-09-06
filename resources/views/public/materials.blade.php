@@ -373,7 +373,8 @@ document.addEventListener('alpine:init', () => {
                 filtered = filtered.filter(material => 
                     material.title.toLowerCase().includes(query) ||
                     material.source.toLowerCase().includes(query) ||
-                    material.organizer?.toLowerCase().includes(query)
+                    material.organizer?.toLowerCase().includes(query) ||
+                    (material.context && material.context.toLowerCase().includes(query))
                 );
             }
 

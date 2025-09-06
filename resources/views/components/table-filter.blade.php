@@ -7,9 +7,9 @@
 ])
 
 <div class="bg-white p-4 border-b border-gray-200 shadow-sm">
-    <div class="flex flex-col lg:flex-row gap-4">
+    <div class="flex flex-col xl:flex-row gap-3">
         <!-- Search Input -->
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
             <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Pencarian</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -30,7 +30,7 @@
 
         <!-- Category Filter -->
         @if($showCategoryFilter && count($categories) > 0)
-        <div class="lg:w-48">
+        <div class="xl:w-40">
             <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
             <select 
                 id="category_id" 
@@ -51,7 +51,7 @@
 
         <!-- Date Range Filter -->
         @if($showDateRange)
-        <div class="lg:w-48">
+        <div class="xl:w-36">
             <label for="date_from" class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
             <input 
                 type="date" 
@@ -64,7 +64,7 @@
             >
         </div>
 
-        <div class="lg:w-48">
+        <div class="xl:w-36">
             <label for="date_to" class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
             <input 
                 type="date" 
@@ -78,7 +78,7 @@
         </div>
 
         <!-- Date Presets -->
-        <div class="lg:w-48">
+        <div class="xl:w-40">
             <label class="block text-sm font-medium text-gray-700 mb-1">Preset Tanggal</label>
             <select 
                 x-model="datePreset"
@@ -99,22 +99,22 @@
         @endif
 
         <!-- Action Buttons -->
-        <div class="flex items-end gap-2">
+        <div class="flex items-end gap-2 xl:flex-shrink-0">
             <button 
                 type="button"
                 @click="clearFilters()"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
             >
-                <i class="fas fa-times mr-2"></i>
+                <i class="fas fa-times mr-1"></i>
                 Reset
             </button>
             
             <button 
                 type="button"
                 @click="applyFilters()"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
             >
-                <i class="fas fa-filter mr-2"></i>
+                <i class="fas fa-filter mr-1"></i>
                 Filter
             </button>
         </div>
@@ -170,9 +170,11 @@ document.addEventListener('alpine:init', () => {
             if (this.filters.dateFrom) params.set('date_from', this.filters.dateFrom);
             if (this.filters.dateTo) params.set('date_to', this.filters.dateTo);
             
-            // Preserve existing pagination
+            // Preserve existing pagination and per_page
             const currentPage = new URLSearchParams(window.location.search).get('page');
+            const currentPerPage = new URLSearchParams(window.location.search).get('per_page');
             if (currentPage) params.set('page', currentPage);
+            if (currentPerPage) params.set('per_page', currentPerPage);
             
             const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
             window.location.href = newUrl;
@@ -187,8 +189,12 @@ document.addEventListener('alpine:init', () => {
                 ...initialFilters
             };
             
-            // Remove all filter params from URL
-            const newUrl = window.location.pathname;
+            // Remove all filter params from URL but preserve per_page
+            const currentPerPage = new URLSearchParams(window.location.search).get('per_page');
+            let newUrl = window.location.pathname;
+            if (currentPerPage) {
+                newUrl += '?per_page=' + currentPerPage;
+            }
             window.location.href = newUrl;
         },
 

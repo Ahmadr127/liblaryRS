@@ -5,21 +5,41 @@
 @section('content')
 <script>
     window.__LANDING_DATA = {
-        materials: @json($calendarMaterials ?? [])
+        materials: @json($calendarMaterials ?? []),
+        allMaterials: @json($formattedMaterials ?? []),
+        categories: @json($categories ?? [])
     };
 </script>
 
 <div x-data="landing()" x-init="init()" class="relative">
-    <div class="relative z-10">
-        @include('components.hero', ['materials' => $materials, 'categories' => $categories, 'recentMaterials' => $recentMaterials])
+    <!-- News Section -->
+    <div id="section-news" class="relative z-30">
+        @include('components.news-section')
     </div>
 
-    <div class="relative z-20">
+    <!-- Materials Section -->
+    <div id="section-materials" class="relative z-20 bg-white">
+        @include('components.materials-section')
+    </div>
+
+    <!-- Calendar Section -->
+    <div id="section-calendar" class="relative z-30">
         @include('components.calendar-schedule')
     </div>
 
-    <div class="relative z-30">
+    <!-- About Section -->
+    <div id="section-about" class="relative z-30">
         @include('components.about')
+    </div>
+
+    <!-- Floating Navigation Buttons -->
+    <div class="fixed right-5 bottom-5 z-50 flex flex-col gap-3">
+        <button x-show="isAtBottom" x-transition @click="scrollToTop()" class="w-12 h-12 rounded-full bg-teal-600 text-white shadow-lg hover:bg-teal-700 flex items-center justify-center">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <button x-show="!isAtBottom" x-transition @click="scrollToNextSection()" class="w-12 h-12 rounded-full bg-gray-800 text-white shadow-lg hover:bg-gray-900 flex items-center justify-center">
+            <i class="fas fa-arrow-down"></i>
+        </button>
     </div>
 </div>
 
@@ -31,18 +51,20 @@
         overflow: hidden;
     }
     
-    /* Ensure hero section is visible and backgrounds work properly */
-    .hero-section {
-        position: relative !important;
-        z-index: 1 !important;
-        background: linear-gradient(135deg, #0f766e 0%, #0d9488 25%, #14b8a6 75%, #5eead4 100%) !important;
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
     
-    /* Hero pattern background */
-    .hero-pattern {
-        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") !important;
+    /* Section spacing tweaks */
+    #section-news + #section-materials,
+    #section-materials + #section-calendar,
+    #section-calendar + #section-about {
+        margin-top: -8px;
     }
-    
+
     /* Fix any potential Alpine.js conflicts */
     [x-data] {
         position: relative;
@@ -57,5 +79,14 @@
     .z-10 { z-index: 10 !important; }
     .z-20 { z-index: 20 !important; }
     .z-30 { z-index: 30 !important; }
+    
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
 </style>
+
+@include('components.materials-section-script')
 @endsection

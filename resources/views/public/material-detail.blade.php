@@ -18,9 +18,10 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="max-w-4xl mx-auto">
-            <!-- Main Content -->
-            <div class="space-y-6">
+        <!-- Two-column layout: 70% left, 30% right -->
+        <div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
+            <!-- Left Column (70%) -->
+            <div class="lg:col-span-7 space-y-6">
                 <!-- Header Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6">
@@ -40,7 +41,16 @@
 
                         <!-- Title and Description -->
                         <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $material->title }}</h1>
-                        <p class="text-lg text-gray-600 mb-6">{{ $material->source }}</p>
+                        <p class="text-lg text-gray-600 mb-4">{{ $material->source }}</p>
+                        
+                        @if($material->context)
+                        <div class="mb-6">
+                            <!-- <h3 class="text-sm font-medium text-gray-700 mb-2">Konteks:</h3> -->
+                            <div class="prose max-w-none text-gray-700">
+                                {!! $material->context !!}
+                            </div>
+                        </div>
+                        @endif
 
                         <!-- Tags -->
                         <div class="flex flex-wrap gap-2 mb-6">
@@ -109,11 +119,14 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h2 class="text-xl font-semibold text-gray-900 mb-4">Deskripsi</h2>
                     <div class="prose max-w-none text-gray-700">
-                        {!! nl2br(e($material->description)) !!}
+                        {!! $material->description !!}
                     </div>
                 </div>
                 @endif
+            </div>
 
+            <!-- Right Column (30%) -->
+            <div class="lg:col-span-3 space-y-6">
                 <!-- Files Card -->
                 @if($material->files->count() > 0)
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -157,7 +170,7 @@
                 @if($relatedMaterials->count() > 0)
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h2 class="text-xl font-semibold text-gray-900 mb-6">Materi Terkait</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4">
                         @foreach($relatedMaterials as $related)
                         <a href="{{ route('public.material.detail', $related) }}" class="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                             <div class="flex items-start">
@@ -175,7 +188,6 @@
                 </div>
                 @endif
             </div>
-
         </div>
     </div>
 

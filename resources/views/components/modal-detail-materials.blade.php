@@ -52,6 +52,14 @@
                         <span x-text="material?.source || ''" class="text-gray-900"></span>
                     </div>
 
+                    <!-- Konteks -->
+                    <div x-show="material?.context" class="flex items-start space-x-4">
+                        <span class="text-sm font-medium text-gray-500 w-24">Konteks:</span>
+                        <div class="flex-1">
+                            <div x-html="material?.context || ''" class="text-gray-900 prose max-w-none"></div>
+                        </div>
+                    </div>
+
                     <!-- Tanggal Kegiatan -->
                     <div class="flex items-center space-x-4">
                         <span class="text-sm font-medium text-gray-500 w-24">Tanggal:</span>

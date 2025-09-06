@@ -1,9 +1,9 @@
 <!-- About Section -->
-<section id="about" class="py-16 bg-white scroll-mt-20">
+<section id="about" class="py-12 bg-white scroll-mt-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Tentang Platform</h2>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+        <div class="text-left mb-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Tentang Platform</h2>
+            <p class="text-base md:text-lg text-gray-600 max-w-3xl">
                 Digital Liblary RS adalah platform terintegrasi untuk mengelola, 
                 mengakses, dan berbagi materi pembelajaran dalam lingkungan rumah sakit.
             </p>
@@ -14,24 +14,24 @@
                 <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-book text-2xl text-teal-600"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Materi Lengkap</h3>
-                <p class="text-gray-600">Akses berbagai materi pembelajaran medis dan non-medis</p>
+                <h3 class="text-lg md:text-xl font-semibold text-gray-900 mb-1">Materi Lengkap</h3>
+                <p class="text-sm md:text-base text-gray-600">Akses berbagai materi pembelajaran medis dan non-medis</p>
             </div>
 
             <div class="text-center">
                 <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-search text-2xl text-teal-600"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Pencarian Mudah</h3>
-                <p class="text-gray-600">Temukan materi yang Anda butuhkan dengan cepat dan akurat</p>
+                <h3 class="text-lg md:text-xl font-semibold text-gray-900 mb-1">Pencarian Mudah</h3>
+                <p class="text-sm md:text-base text-gray-600">Temukan materi yang Anda butuhkan dengan cepat dan akurat</p>
             </div>
 
             <div class="text-center">
                 <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-shield-alt text-2xl text-teal-600"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Aman & Terpercaya</h3>
-                <p class="text-gray-600">Platform yang aman dengan sistem keamanan berlapis</p>
+                <h3 class="text-lg md:text-xl font-semibold text-gray-900 mb-1">Aman & Terpercaya</h3>
+                <p class="text-sm md:text-base text-gray-600">Platform yang aman dengan sistem keamanan berlapis</p>
             </div>
         </div>
     </div>

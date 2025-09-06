@@ -13,8 +13,8 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Styles & Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <style>
@@ -62,6 +62,7 @@
                     <nav class="hidden md:flex items-center space-x-6">
                         <a href="{{ route('landing') }}" class="text-gray-700 hover:text-teal-600 font-medium transition-colors">Beranda</a>
                         <a href="/materials" class="text-gray-700 hover:text-teal-600 font-medium transition-colors">Materi</a>
+                        <a href="{{ route('public.news.index') }}" class="text-gray-700 hover:text-teal-600 font-medium transition-colors">Berita</a>
                         <a href="{{ route('about') }}" class="text-gray-700 hover:text-teal-600 font-medium transition-colors">Tentang</a>
                     </nav>
                 </div>
@@ -132,6 +133,7 @@
                 <nav class="flex flex-col space-y-4">
                     <a href="{{ route('landing') }}" class="text-gray-700 hover:text-teal-600 font-medium">Beranda</a>
                     <a href="/materials" class="text-gray-700 hover:text-teal-600 font-medium">Materi</a>
+                    <a href="{{ route('public.news.index') }}" class="text-gray-700 hover:text-teal-600 font-medium">Berita</a>
                     <a href="{{ route('about') }}" class="text-gray-700 hover:text-teal-600 font-medium">Tentang</a>
                     <div class="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                         <a href="{{ route('login') }}" class="px-4 py-2 text-teal-600 border border-teal-600 rounded-lg text-center">Masuk</a>
@@ -220,6 +222,9 @@
                 filteredMaterials: [],
                 allMaterials: [],
                 calendarMaterials: [],
+                sections: ['section-news','section-materials','section-calendar','section-about'],
+                currentSectionIndex: 0,
+                isAtBottom: false,
 
                 // Helper: format Date to YYYY-MM-DD in local timezone (avoid UTC shift)
                 formatDate(dateObj) {
@@ -271,6 +276,38 @@
                     }
                     this.generateCalendar();
                     this.loadMaterialsForDate();
+                    this.updateScrollState();
+                    window.addEventListener('scroll', () => this.updateScrollState());
+                    window.addEventListener('resize', () => this.updateScrollState());
+                },
+
+                // Floating nav helpers
+                scrollToTop() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    this.currentSectionIndex = 0;
+                },
+
+                scrollToNextSection() {
+                    try {
+                        const idx = Math.min(this.currentSectionIndex + 1, this.sections.length - 1);
+                        const id = this.sections[idx];
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            this.currentSectionIndex = idx;
+                        }
+                    } catch (e) {}
+                },
+
+                updateScrollState() {
+                    try {
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                        const viewport = window.innerHeight || document.documentElement.clientHeight;
+                        const full = document.documentElement.scrollHeight;
+                        this.isAtBottom = scrollTop + viewport >= full - 2;
+                    } catch (e) {
+                        this.isAtBottom = false;
+                    }
                 },
 
                 generateCalendar() {

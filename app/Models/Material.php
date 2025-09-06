@@ -16,6 +16,7 @@ class Material extends Model
         'title',
         'organizer',
         'source',
+        'context',
         'activity_date',
         'activity_date_start',
         'activity_date_end',
@@ -141,7 +142,8 @@ class Material extends Model
             $query->where(function($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('organizer', 'like', "%{$search}%")
-                  ->orWhere('source', 'like', "%{$search}%");
+                  ->orWhere('source', 'like', "%{$search}%")
+                  ->orWhere('context', 'like', "%{$search}%");
             });
         }
         

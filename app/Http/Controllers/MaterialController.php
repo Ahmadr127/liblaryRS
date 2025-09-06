@@ -21,12 +21,15 @@ class MaterialController extends Controller
             }
         }
 
+        $perPage = $request->get('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? (int)$perPage : 10;
+        
         $materials = Material::with(['uploader', 'files', 'category'])
             ->search($request->search)
             ->byCategory($request->category_id)
             ->dateRange($request->date_from, $request->date_to)
             ->latest()
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
         
         $categories = \App\Models\Category::orderBy('display_name')->get();
@@ -46,6 +49,7 @@ class MaterialController extends Controller
             'title' => 'required|string|max:255',
             'organizer' => 'required|string|max:255',
             'source' => 'required|string|max:255',
+            'context' => 'nullable|string',
             'activity_date' => 'nullable|date',
             'activity_date_start' => 'nullable|date',
             'activity_date_end' => 'nullable|date|after_or_equal:activity_date_start',
@@ -71,6 +75,7 @@ class MaterialController extends Controller
             'title' => $request->title,
             'organizer' => $request->organizer,
             'source' => $request->source,
+            'context' => $request->context,
             'activity_date' => $request->activity_date,
             'activity_date_start' => $request->activity_date_start,
             'activity_date_end' => $request->activity_date_end,
@@ -126,6 +131,7 @@ class MaterialController extends Controller
             'title' => 'required|string|max:255',
             'organizer' => 'required|string|max:255',
             'source' => 'required|string|max:255',
+            'context' => 'nullable|string',
             'activity_date' => 'nullable|date',
             'activity_date_start' => 'nullable|date',
             'activity_date_end' => 'nullable|date|after_or_equal:activity_date_start',
@@ -151,6 +157,7 @@ class MaterialController extends Controller
             'title' => $request->title,
             'organizer' => $request->organizer,
             'source' => $request->source,
+            'context' => $request->context,
             'activity_date' => $request->activity_date,
             'activity_date_start' => $request->activity_date_start,
             'activity_date_end' => $request->activity_date_end,
@@ -284,6 +291,7 @@ class MaterialController extends Controller
             'category_label' => $material->category_label,
             'organizer' => $material->organizer,
             'source' => $material->source,
+            'context' => $material->context,
             'activity_date' => $material->activity_date ? $material->activity_date->format('Y-m-d') : null,
             'activity_date_formatted' => $material->activity_date ? $material->activity_date->format('d F Y') : null,
             'activity_date_range' => $material->activity_date_range,
@@ -315,12 +323,15 @@ class MaterialController extends Controller
             }
         }
 
+        $perPage = $request->get('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? (int)$perPage : 10;
+        
         $materials = Material::with(['uploader', 'files', 'category'])
             ->search($request->search)
             ->byCategory($request->category_id)
             ->dateRange($request->date_from, $request->date_to)
             ->latest()
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
         
         $categories = \App\Models\Category::orderBy('display_name')->get();

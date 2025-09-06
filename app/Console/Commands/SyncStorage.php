@@ -12,7 +12,7 @@ class SyncStorage extends Command
      *
      * @var string
      */
-    protected $signature = 'storage:sync';
+    protected $signature = 'storage:sync {path? : Relative path inside storage/app/public to sync (optional)}';
 
     /**
      * The console command description.
@@ -26,10 +26,13 @@ class SyncStorage extends Command
      */
     public function handle()
     {
-        $sourceDir = storage_path('app/public');
+        $relativePath = trim((string)($this->argument('path') ?? ''), " \/");
+        $sourceDir = $relativePath
+            ? storage_path('app/public/' . $relativePath)
+            : storage_path('app/public');
         $targetDir = public_path('storage');
 
-        $this->info('Memulai sync storage files...');
+        $this->info('Memulai sync storage files' . ($relativePath ? ' untuk path: ' . $relativePath : '') . '...');
 
         // Buat direktori target jika belum ada
         if (!File::exists($targetDir)) {
@@ -83,5 +86,38 @@ class SyncStorage extends Command
             
             $this->copyDirectory($directory, $targetPath);
         }
+    }
+
+    /**
+     * Fallback helper (static) untuk menyalin satu file dari storage/app/public
+     * ke public/storage saat symbolic link tidak berfungsi (mis. di InfinityFree).
+     *
+     * Gunakan nilai relative path terhadap disk 'public', contoh:
+     *   news/abc.jpg atau materials/file.pdf
+     */
+    public static function copySinglePublicFileToPublicStorage(string $relativePath): bool
+    {
+        $relativePath = trim($relativePath, " \/");
+        if ($relativePath === '') {
+            return false;
+        }
+
+        $sourcePath = storage_path('app/public/' . $relativePath);
+        $targetPath = public_path('storage/' . $relativePath);
+
+        if (!File::exists($sourcePath)) {
+            return false;
+        }
+
+        $targetDir = dirname($targetPath);
+        if (!File::exists($targetDir)) {
+            File::makeDirectory($targetDir, 0755, true);
+        }
+
+        if (!File::exists($targetPath)) {
+            return File::copy($sourcePath, $targetPath);
+        }
+
+        return true; // Sudah ada di target
     }
 }

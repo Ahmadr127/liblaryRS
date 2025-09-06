@@ -8,12 +8,43 @@
     <link rel="icon" type="image/x-icon" href="images/logo.png">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Responsive layout styles */
+        .content {
+            flex: 1;
+            min-width: 0;
+            overflow-x: auto;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table-responsive table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        /* Ensure sidebar is fixed width */
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+        
+        /* Main wrapper for flexbox layout */
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+    </style>
+    @yield('head')
 </head>
 <body class="bg-gray-100">
-    <div x-data="{ sidebarOpen: false }" class="min-h-screen flex">
+    <div x-data="{ sidebarOpen: false }" class="main-wrapper">
         <!-- Sidebar -->
         <div :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
-             class="fixed inset-y-0 left-0 z-50 w-64 bg-green-700 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0">
+             class="sidebar fixed inset-y-0 left-0 z-50 bg-green-700 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0">
             
             <!-- Logo/Brand -->
             <div class="flex items-center justify-center h-20 px-4 border-b border-green-600">
@@ -92,6 +123,15 @@
                         </a>
                     </li>
                     @endif
+
+                    @if(auth()->user()->hasPermission('manage_news'))
+                    <li>
+                        <a href="{{ route('news.index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-green-800 transition-colors {{ request()->routeIs('news.*') ? 'bg-green-800' : '' }}">
+                            <i class="fas fa-newspaper w-5 mr-3"></i>
+                            Kelola Berita
+                        </a>
+                    </li>
+                    @endif
                 </ul>
 
                 <!-- User Profile Section -->
@@ -111,7 +151,7 @@
         </div>
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col lg:ml-0">
+        <div class="content flex flex-col lg:ml-0">
             <!-- Top Navigation Bar -->
             <header x-data="{ scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 8 })" class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200 transition-shadow duration-300" :class="{ 'shadow-md': scrolled }">
                 <div class="flex items-center justify-between h-16 px-6">

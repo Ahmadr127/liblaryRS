@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Material;
 use App\Models\Category;
+use App\Models\News;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
@@ -19,8 +20,31 @@ class LandingController extends Controller
         // Get featured materials (latest 6)
         $featuredMaterials = (clone $baseQuery)->latest()->take(6)->get();
         
-        // Get all materials for the main list
-        $materials = (clone $baseQuery)->latest()->paginate(12)->withQueryString();
+        // Get all materials for client-side pagination (no server-side pagination)
+        $allMaterials = (clone $baseQuery)->latest()->get();
+        
+        // Format materials for the integrated materials section
+        $formattedMaterials = $allMaterials->map(function ($material) {
+            return [
+                'id' => $material->id,
+                'title' => $material->title,
+                'source' => $material->source,
+                'organizer' => $material->organizer,
+                'context' => $material->context,
+                'category_id' => $material->category_id,
+                'category_label' => $material->category_label,
+                'display_activity_date' => $material->display_activity_date,
+                'activity_date' => $material->activity_date?->format('Y-m-d'),
+                'activity_date_start' => $material->activity_date_start?->format('Y-m-d'),
+                'activity_date_end' => $material->activity_date_end?->format('Y-m-d'),
+                'created_at' => $material->created_at->toISOString(),
+                'uploader' => $material->uploader ? [
+                    'name' => $material->uploader->name
+                ] : null,
+                'files_count' => $material->files->count(),
+                'bookmarked' => false
+            ];
+        });
         
         // Get categories for filter
         $categories = Category::orderBy('display_name')->get();
@@ -43,6 +67,7 @@ class LandingController extends Controller
                 'organizer' => $m->organizer,
                 'category_label' => $m->category_label,
                 'source' => $m->source,
+                'context' => $m->context,
                 'display_activity_date' => $m->display_activity_date,
                 'activity_date_range' => $m->activity_date_range,
                 'activity_date' => $m->activity_date?->format('Y-m-d'),
@@ -52,13 +77,21 @@ class LandingController extends Controller
             ];
         });
 
+        // Latest published news for landing section
+        $latestNews = News::published()
+            ->with(['category'])
+            ->latest('published_at')
+            ->take(4)
+            ->get();
+
         return view('landing', compact(
             'featuredMaterials', 
-            'materials', 
+            'formattedMaterials',
             'categories', 
             'categoryStats', 
             'recentMaterials',
-            'calendarMaterials'
+            'calendarMaterials',
+            'latestNews'
         ));
     }
 
@@ -77,6 +110,7 @@ class LandingController extends Controller
                     'title' => $material->title,
                     'source' => $material->source,
                     'organizer' => $material->organizer,
+                    'context' => $material->context,
                     'category_id' => $material->category_id,
                     'category_label' => $material->category_label,
                     'display_activity_date' => $material->display_activity_date,

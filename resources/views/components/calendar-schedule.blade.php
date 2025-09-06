@@ -1,16 +1,16 @@
 <!-- Calendar & Schedule Section -->
-<section class="py-16 bg-white">
+<section class="py-12 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Jadwal Kegiatan</h2>
-            <p class="text-lg text-gray-600">Pilih tanggal untuk melihat jadwal kegiatan yang tersedia</p>
+        <div class="text-left mb-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Jadwal Kegiatan</h2>
+            <p class="text-base md:text-lg text-gray-600">Pilih tanggal untuk melihat jadwal kegiatan yang tersedia</p>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- Calendar -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-5 lg:basis-[35%] min-h-[560px]">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-5 lg:basis-[35%] min-h-[520px]">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-gray-900">Kalender Kegiatan</h3>
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-900">Kalender Kegiatan</h3>
                     <div class="flex items-center space-x-2">
                         <button @click="previousMonth()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                             <i class="fas fa-chevron-left text-gray-600"></i>
@@ -21,8 +21,8 @@
                     </div>
                 </div>
 
-                <div class="text-center mb-3">
-                    <h4 class="text-lg font-semibold text-gray-900" x-text="currentMonthYear"></h4>
+                <div class="text-left mb-3">
+                    <h4 class="text-base md:text-lg font-semibold text-gray-900" x-text="currentMonthYear"></h4>
                 </div>
 
                 <!-- Calendar Grid -->
@@ -58,9 +58,9 @@
             </div>
 
             <!-- Schedule List -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 lg:basis-[65%] min-h-[560px]">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 lg:basis-[65%] min-h-[520px]">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-gray-900">Daftar Kegiatan</h3>
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-900">Daftar Kegiatan</h3>
                     <span class="text-sm text-gray-500" x-text="selectedDateText"></span>
                 </div>
 

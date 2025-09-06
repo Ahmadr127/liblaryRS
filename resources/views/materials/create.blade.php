@@ -2,168 +2,188 @@
 
 @section('title', 'Tambah Materi Baru')
 
+@section('head')
+<!-- Quill.js -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+@endsection
+
 @section('content')
 <div class="max-w-6xl mx-auto">
     <div class="bg-white rounded-lg shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Tambah Materi Baru</h3>
-        </div>
 
-        <form action="{{ route('materials.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6" x-data="{ dateType: 'single' }" @submit="handleFormSubmit">
+        <form action="{{ route('materials.store') }}" method="POST" enctype="multipart/form-data" class="p-6" x-data="{ dateType: 'single' }" @submit="handleFormSubmit">
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Kategori -->
-                <div>
-                    <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
-                    <select id="category_id" name="category_id" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                        <option value="">Pilih Kategori</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->display_name }}</option>
-                        @endforeach
-                    </select>
-                    @error('category_id')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Tanggal Kegiatan -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kegiatan *</label>
-                    
-                    <!-- Toggle untuk pilih jenis tanggal -->
-                    <div class="mb-3">
-                        <div class="flex space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="date_type" value="single" x-model="dateType" class="mr-2">
-                                <span class="text-sm text-gray-700">Tanggal Tunggal</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="date_type" value="range" x-model="dateType" class="mr-2">
-                                <span class="text-sm text-gray-700">Rentang Tanggal</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Input Tanggal Tunggal -->
-                    <div x-show="dateType === 'single'" class="mb-3">
-                        <input type="date" id="activity_date" name="activity_date" value="{{ old('activity_date') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                        @error('activity_date')
+            <div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
+                <!-- Left Column - 70% -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Kategori -->
+                    <div>
+                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
+                        <select id="category_id" name="category_id" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            <option value="">Pilih Kategori</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->display_name }}</option>
+                            @endforeach
+                        </select>
+                        @error('category_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Input Rentang Tanggal -->
-                    <div x-show="dateType === 'range'" class="space-y-3">
-                        <div>
-                            <label for="activity_date_start" class="block text-sm font-medium text-gray-600 mb-1">Tanggal Mulai</label>
-                            <input type="date" id="activity_date_start" name="activity_date_start" value="{{ old('activity_date_start') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                            @error('activity_date_start')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <div>
-                            <label for="activity_date_end" class="block text-sm font-medium text-gray-600 mb-1">Tanggal Selesai</label>
-                            <input type="date" id="activity_date_end" name="activity_date_end" value="{{ old('activity_date_end') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                            @error('activity_date_end')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    <!-- Judul -->
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Judul Materi *</label>
+                        <input type="text" id="title" name="title" value="{{ old('title') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="Masukkan judul materi">
+                        @error('title')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
-                </div>
-            </div>
 
-            <!-- Judul -->
-            <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Judul Materi *</label>
-                <input type="text" id="title" name="title" value="{{ old('title') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="Masukkan judul materi">
-                @error('title')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+                    <!-- Penyelenggara -->
+                    <div>
+                        <label for="organizer" class="block text-sm font-medium text-gray-700 mb-2">Penyelenggara *</label>
+                        <input type="text" id="organizer" name="organizer" value="{{ old('organizer') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="Masukkan nama penyelenggara">
+                        @error('organizer')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Penyelenggara -->
-                <div>
-                    <label for="organizer" class="block text-sm font-medium text-gray-700 mb-2">Penyelenggara *</label>
-                    <input type="text" id="organizer" name="organizer" value="{{ old('organizer') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="Masukkan nama penyelenggara">
-                    @error('organizer')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Sumber -->
-                <div>
-                    <label for="source" class="block text-sm font-medium text-gray-700 mb-2">Sumber *</label>
-                    <input type="text" id="source" name="source" value="{{ old('source') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="Masukkan sumber materi">
-                    @error('source')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- File Upload -->
-            <div x-data="fileUpload()">
-                <label for="file" class="block text-sm font-medium text-gray-700 mb-2">File PDF *</label>
-                
-                <!-- Drag & Drop Zone -->
-                <div 
-                    @dragover.prevent="isDragging = true"
-                    @dragleave.prevent="isDragging = false"
-                    @drop.prevent="handleDrop($event)"
-                    @click="$refs.fileInput.click()"
-                    :class="isDragging ? 'border-green-500 bg-green-50' : 'border-gray-300'"
-                    class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md cursor-pointer transition-colors hover:border-green-400 hover:bg-green-50">
-                    <div class="space-y-1 text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <div class="flex text-sm text-gray-600">
-                            <label class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500">
-                                <span>Upload file</span>
-                                <input 
-                                    x-ref="fileInput"
-                                    id="file" 
-                                    name="file[]" 
-                                    type="file" 
-                                    accept=".pdf" 
-                                    class="sr-only" 
-                                    required 
-                                    multiple
-                                    @change="handleFileSelect($event)">
-                            </label>
-                            <p class="pl-1">atau drag and drop</p>
+                    <!-- Konteks -->
+                    <div>
+                        <label for="context" class="block text-sm font-medium text-gray-700 mb-2">Konteks</label>
+                        <div id="context" class="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 @error('context') border-red-500 @enderror" style="height: 200px;">
+                            {!! old('context') !!}
                         </div>
-                        <p class="text-xs text-gray-500">PDF hingga 10MB per file. Bisa upload multiple file.</p>
+                        <textarea name="context" id="context-hidden" style="display: none;"></textarea>
+                        @error('context')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
-                <!-- Selected Files Display -->
-                <div x-show="selectedFiles.length > 0" class="mt-4">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">File yang dipilih:</h4>
-                    <div class="space-y-2">
-                        <template x-for="(file, index) in selectedFiles" :key="index">
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                                <div class="flex items-center space-x-3">
-                                    <i class="fas fa-file-pdf text-red-500"></i>
-                                    <span x-text="file.name" class="text-sm text-gray-900"></span>
-                                    <span x-text="formatFileSize(file.size)" class="text-xs text-gray-500"></span>
-                                </div>
-                                <button 
-                                    @click="removeFile(index)" 
-                                    type="button"
-                                    class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                <!-- Right Column - 30% -->
+                <div class="lg:col-span-3 space-y-6">
+                    <!-- Sumber -->
+                    <div>
+                        <label for="source" class="block text-sm font-medium text-gray-700 mb-2">Sumber *</label>
+                        <input type="text" id="source" name="source" value="{{ old('source') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" placeholder="Masukkan sumber materi">
+                        @error('source')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Tanggal Kegiatan -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kegiatan *</label>
+                        
+                        <!-- Toggle untuk pilih jenis tanggal -->
+                        <div class="mb-3">
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="date_type" value="single" x-model="dateType" class="mr-2">
+                                    <span class="text-sm text-gray-700">Tanggal Tunggal</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="date_type" value="range" x-model="dateType" class="mr-2">
+                                    <span class="text-sm text-gray-700">Rentang Tanggal</span>
+                                </label>
                             </div>
-                        </template>
+                        </div>
+
+                        <!-- Input Tanggal Tunggal -->
+                        <div x-show="dateType === 'single'" class="mb-3">
+                            <input type="date" id="activity_date" name="activity_date" value="{{ old('activity_date') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            @error('activity_date')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Input Rentang Tanggal -->
+                        <div x-show="dateType === 'range'" class="space-y-3">
+                            <div>
+                                <label for="activity_date_start" class="block text-sm font-medium text-gray-600 mb-1">Tanggal Mulai</label>
+                                <input type="date" id="activity_date_start" name="activity_date_start" value="{{ old('activity_date_start') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                @error('activity_date_start')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="activity_date_end" class="block text-sm font-medium text-gray-600 mb-1">Tanggal Selesai</label>
+                                <input type="date" id="activity_date_end" name="activity_date_end" value="{{ old('activity_date_end') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                @error('activity_date_end')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div x-data="fileUpload()">
+                        <label for="file" class="block text-sm font-medium text-gray-700 mb-2">File PDF *</label>
+                    
+                        <!-- Drag & Drop Zone -->
+                        <div 
+                            @dragover.prevent="isDragging = true"
+                            @dragleave.prevent="isDragging = false"
+                            @drop.prevent="handleDrop($event)"
+                            @click="$refs.fileInput.click()"
+                            :class="isDragging ? 'border-green-500 bg-green-50' : 'border-gray-300'"
+                            class="mt-1 flex justify-center px-4 pt-4 pb-5 border-2 border-dashed rounded-md cursor-pointer transition-colors hover:border-green-400 hover:bg-green-50">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-10 w-10 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500">
+                                        <span>Upload file</span>
+                                        <input 
+                                            x-ref="fileInput"
+                                            id="file" 
+                                            name="file[]" 
+                                            type="file" 
+                                            accept=".pdf" 
+                                            class="sr-only" 
+                                            required 
+                                            multiple
+                                            @change="handleFileSelect($event)">
+                                    </label>
+                                    <p class="pl-1">atau drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PDF hingga 10MB per file. Bisa upload multiple file.</p>
+                            </div>
+                        </div>
+
+                        <!-- Selected Files Display -->
+                        <div x-show="selectedFiles.length > 0" class="mt-3">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">File yang dipilih:</h4>
+                            <div class="space-y-2">
+                                <template x-for="(file, index) in selectedFiles" :key="index">
+                                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                                        <div class="flex items-center space-x-2">
+                                            <i class="fas fa-file-pdf text-red-500"></i>
+                                            <span x-text="file.name" class="text-xs text-gray-900 truncate"></span>
+                                            <span x-text="formatFileSize(file.size)" class="text-xs text-gray-500"></span>
+                                        </div>
+                                        <button 
+                                            @click="removeFile(index)" 
+                                            type="button"
+                                            class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        @error('file')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
-
-                @error('file')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
             </div>
+
 
             <!-- Buttons -->
             <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
@@ -180,6 +200,33 @@
 </div>
 
 <script>
+// Initialize Quill.js for context field
+var contextQuill = new Quill('#context', {
+    theme: 'snow',
+    modules: {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['link'],
+            ['clean']
+        ]
+    },
+    placeholder: 'Masukkan konteks atau deskripsi tambahan materi (opsional)...'
+});
+
+// Update hidden textarea in real-time as user types
+contextQuill.on('text-change', function() {
+    document.querySelector('#context-hidden').value = contextQuill.root.innerHTML;
+});
+
+// Update hidden textarea before form submission
+document.querySelector('form').addEventListener('submit', function(e) {
+    // Update the hidden textarea with Quill content
+    document.querySelector('#context-hidden').value = contextQuill.root.innerHTML;
+});
+
 function fileUpload() {
     return {
         isDragging: false,

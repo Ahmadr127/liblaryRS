@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\LandingController;
 
 /*
@@ -30,6 +31,10 @@ Route::get('/materials', [LandingController::class, 'materials'])->name('public.
 Route::get('/materials/detail/{material}', [LandingController::class, 'materialDetail'])->name('public.material.detail');
 Route::get('/materials/files/{materialFile}/download', [MaterialController::class, 'downloadPublic'])->name('materials.files.download');
 Route::get('/materials/files/{materialFile}/preview', [MaterialController::class, 'previewPublic'])->name('materials.files.preview');
+
+// Public news routes
+Route::get('/berita', [NewsController::class, 'publicIndex'])->name('public.news.index');
+Route::get('/berita/{news}', [NewsController::class, 'publicShow'])->name('public.news.show');
 
 // Authentication routes
 Route::middleware('guest')->group(function () {
@@ -89,6 +94,12 @@ Route::middleware('auth')->group(function () {
     });
     Route::middleware('permission:manage_categories')->group(function () {
         Route::resource('categories', CategoryController::class)->except(['index', 'show']);
+    });
+
+    // News Management routes
+    Route::middleware('permission:manage_news')->group(function () {
+        Route::resource('news', NewsController::class);
+        Route::post('news/{news}/toggle-status', [NewsController::class, 'toggleStatus'])->name('news.toggle-status');
     });
 
     // Storage sync route untuk InfinityFree (opsional)
