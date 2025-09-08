@@ -10,7 +10,7 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create Permissions
+        // Create Permissions (idempotent)
         $permissions = [
             ['name' => 'manage_roles', 'display_name' => 'Kelola Roles', 'description' => 'Mengelola roles dan permissions'],
             ['name' => 'manage_permissions', 'display_name' => 'Kelola Permissions', 'description' => 'Mengelola permissions'],
@@ -25,50 +25,57 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create($permission);
+            Permission::firstOrCreate(
+                ['name' => $permission['name']],
+                $permission
+            );
         }
 
-        // Create Roles
-        $adminRole = Role::create([
-            'name' => 'admin',
-            'display_name' => 'Administrator',
-            'description' => 'Role dengan akses penuh ke sistem'
-        ]);
-
-        $librarianRole = Role::create([
-            'name' => 'librarian',
-            'display_name' => 'Pustakawan',
-            'description' => 'Role untuk mengelola perpustakaan'
-        ]);
-
-        $userRole = Role::create([
-            'name' => 'user',
-            'display_name' => 'Pengguna',
-            'description' => 'Role untuk pengguna umum'
-        ]);
-
-        // Assign permissions to roles
-        $adminRole->permissions()->attach(Permission::all()); // Admin gets all permissions
-        
-        $librarianRole->permissions()->attach(
-            Permission::whereIn('name', [
-                'view_dashboard',
-                'manage_materials',
-                'view_materials',
-                'manage_categories',
-                'view_categories',
-                'manage_news',
-                'view_news'
-            ])->get()
+        // Create Roles (idempotent)
+        $adminRole = Role::firstOrCreate(
+            ['name' => 'admin'],
+            [
+                'display_name' => 'Administrator',
+                'description' => 'Role dengan akses penuh ke sistem'
+            ]
         );
-        
-        $userRole->permissions()->attach(
-            Permission::whereIn('name', [
-                'view_dashboard',
-                'view_materials',
-                'view_categories',
-                'view_news'
-            ])->get()
+
+        $librarianRole = Role::firstOrCreate(
+            ['name' => 'librarian'],
+            [
+                'display_name' => 'Pustakawan',
+                'description' => 'Role untuk mengelola perpustakaan'
+            ]
         );
+
+        $userRole = Role::firstOrCreate(
+            ['name' => 'user'],
+            [
+                'display_name' => 'Pengguna',
+                'description' => 'Role untuk pengguna umum'
+            ]
+        );
+
+        // Assign permissions to roles (idempotent)
+        $adminRole->permissions()->syncWithoutDetaching(Permission::all()->modelKeys());
+        
+        $librarianPerms = Permission::whereIn('name', [
+            'view_dashboard',
+            'manage_materials',
+            'view_materials',
+            'manage_categories',
+            'view_categories',
+            'manage_news',
+            'view_news'
+        ])->pluck('id')->all();
+        $librarianRole->permissions()->syncWithoutDetaching($librarianPerms);
+        
+        $userPerms = Permission::whereIn('name', [
+            'view_dashboard',
+            'view_materials',
+            'view_categories',
+            'view_news'
+        ])->pluck('id')->all();
+        $userRole->permissions()->syncWithoutDetaching($userPerms);
     }
 }

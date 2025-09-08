@@ -74,16 +74,18 @@ class NewsSeeder extends Seeder
         foreach ($newsData as $index => $data) {
             $category = $categories->random();
             
-            News::create([
-                'title' => $data['title'],
-                'content' => $data['content'],
-                'excerpt' => $data['excerpt'],
-                'category_id' => $category->id,
-                'author_id' => $admin->id,
-                'status' => $data['status'],
-                'published_at' => $data['published_at'],
-                'views' => rand(10, 500),
-            ]);
+            News::updateOrCreate(
+                ['title' => $data['title']],
+                [
+                    'content' => $data['content'],
+                    'excerpt' => $data['excerpt'],
+                    'category_id' => $category->id,
+                    'author_id' => $admin->id,
+                    'status' => $data['status'],
+                    'published_at' => $data['published_at'],
+                    'views' => rand(10, 500),
+                ]
+            );
         }
 
         $this->command->info('News seeder completed successfully!');

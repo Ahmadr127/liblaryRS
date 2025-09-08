@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,21 +14,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Call RolePermissionSeeder first
+        // Seed base data
         $this->call([
             RolePermissionSeeder::class,
             CategorySeeder::class,
-            NewsSeeder::class,
         ]);
 
-        // Create admin user
+        // Ensure admin user exists before dependent seeders
         $adminRole = \App\Models\Role::where('name', 'admin')->first();
-        
-        User::factory()->create([
-            'name' => 'Administrator',
-            'username' => 'admin',
-            'email' => 'admin@example.com',
-            'role_id' => $adminRole->id,
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Administrator',
+                'username' => 'admin',
+                'role_id' => optional($adminRole)->id,
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        // Seed content that may depend on admin/categories
+        $this->call([
+            NewsSeeder::class,
         ]);
     }
 }
