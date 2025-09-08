@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="space-y-6">
+<div x-data="materialsModal()" class="space-y-6">
     <!-- Welcome Section -->
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6">
@@ -109,8 +109,11 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 ml-3">
-                                <a href="{{ route('materials.show', $material) }}" class="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-md transition-colors">
+                                <button @click="openModal({{ $material->id }})" class="p-2 text-teal-600 hover:text-teal-900 hover:bg-teal-50 rounded-md transition-colors" title="Lihat cepat">
                                     <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{{ route('materials.show', $material) }}" class="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-md transition-colors" title="Lihat halaman">
+                                    <i class="fas fa-external-link-alt"></i>
                                 </a>
                                 @if($user->hasPermission('manage_materials'))
                                 <a href="{{ route('materials.edit', $material) }}" class="p-2 text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50 rounded-md transition-colors">
@@ -180,5 +183,37 @@
             </div>
         </div>
     </div>
+
+    @include('components.modal-detail-materials')
 </div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('materialsModal', () => ({
+            isOpen: false,
+            loading: false,
+            material: null,
+            async openModal(id) {
+                this.isOpen = true;
+                this.loading = true;
+                this.material = null;
+                try {
+                    const response = await fetch(`/materials/${id}/modal`, { headers: { 'Accept': 'application/json' } });
+                    if (!response.ok) throw new Error('Gagal memuat');
+                    const data = await response.json();
+                    this.material = data;
+                } catch (e) {
+                    console.error(e);
+                    this.material = null;
+                } finally {
+                    this.loading = false;
+                }
+            },
+            closeModal() {
+                this.isOpen = false;
+                this.material = null;
+            }
+        }));
+    });
+</script>
 @endsection

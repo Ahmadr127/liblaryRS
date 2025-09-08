@@ -91,7 +91,7 @@
                                                 <i class="fas fa-eye mr-1"></i>
                                                 Preview
                                             </a>
-                                            <a :href="'/materials/download/' + file.id" class="text-indigo-600 hover:text-indigo-900 text-sm">
+                                            <a :href="'/materials/files/' + file.id + '/download'" class="text-indigo-600 hover:text-indigo-900 text-sm">
                                                 <i class="fas fa-download mr-1"></i>
                                                 Download
                                             </a>
