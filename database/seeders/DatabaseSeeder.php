@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         // Seed base data
         $this->call([
             RolePermissionSeeder::class,
+            NewsPermissionSeeder::class,
             CategorySeeder::class,
         ]);
 
