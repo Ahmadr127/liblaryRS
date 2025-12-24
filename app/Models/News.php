@@ -64,6 +64,11 @@ class News extends Model
         return null;
     }
 
+    public function getImageAltAttribute()
+    {
+        return $this->title ?? 'News Image';
+    }
+
     public function getStatusLabelAttribute()
     {
         return match($this->status) {

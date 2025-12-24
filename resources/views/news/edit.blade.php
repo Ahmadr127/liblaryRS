@@ -64,7 +64,7 @@
                         <div id="content" class="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('content') border-red-500 @enderror" style="height: 400px;">
                             {!! old('content', $news->content) !!}
                         </div>
-                        <textarea name="content" id="content-hidden" style="display: none;" required></textarea>
+                        <textarea name="content" id="content-hidden" style="display: none;"></textarea>
                         @error('content')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -244,6 +244,9 @@ var quill = new Quill('#content', {
     },
     placeholder: 'Tulis konten berita lengkap...'
 });
+
+// Initialize hidden textarea with current Quill content on page load
+document.querySelector('#content-hidden').value = quill.root.innerHTML;
 
 // Update hidden textarea in real-time as user types
 quill.on('text-change', function() {
